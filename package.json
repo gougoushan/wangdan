@@ -1,7 +1,7 @@
 {
-  "name": "pinduoduo",
+  "name": "wangdan",
   "version": "1.0.0",
-  "description": "stef",
+  "description": "财政局审批抽签系统",
   "main": "index.js",
   "scripts": {
     "start": "electron ."
