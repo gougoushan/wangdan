@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>抽签系统</title>
+    <link rel="stylesheet" href="./jquery-ui/jquery-ui.min.css">
+    <link href="./all.css" rel="stylesheet">
+
+    <script>
+      window.nodeRequire = require;
+      delete window.require;
+      delete window.exports;
+      delete window.module;
+    </script>
+    <script src="./jquery.min.js"></script>
+    <script src="./jquery-ui/jquery-ui.min.js" charset="UTF-8"></script>
+    <script src="./jquery-ui/datepicker-zh-CN.js"></script>
+  </head>
+  <body>
+    <div id='head'>
+      <div for='project' class='item flex sel'>工程项目</div>
+      <div for='person' class='item flex'>抽签人/监督人</div>
+      <div for='enterprise' class='item flex'>中介机构</div>
+      <div for='draw' class='item flex'>抽签</div>
+      <div for='record' class='item flex'>抽签记录</div>
+    </div>
+
+    <div class="tab" id='project'>
+      <table border="1">
+        <tr>
+          <th width="50">选择</th>
+          <th width="150">时间</th>
+          <th width="auto">工程名称</th>
+          <th width="100">工程造价</th>
+        </tr>
+      </table>
+      <div class="tbody" >
+        <table border="1">
+          <colgroup>
+            <col width="50">
+            <col width="150">
+            <col width="auto">
+            <col width="100">
+          </colgroup>
+          <tr class='add'>
+            <td align="center"><input name='project' type="radio"></td>
+            <td><input data-field='date' class="date" type="date"></td>
+            <td><input data-field='name' type="text"></td>
+            <td><input data-field='price' type="text"></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab" id='person' style="display: none;">
+      <table border="1">
+        <tr>
+          <th width="33.33%">姓名</th>
+          <th width="33.33%">抽签人</th>
+          <th width="33.33%">监督人</th>
+        </tr>
+      </table>
+      <div class="tbody" >
+        <table border="1">
+          <colgroup>
+            <col width="33.33%">
+            <col width="33.33%">
+            <col width="33.33%">
+          </colgroup>
+          <tr class='add'>
+            <td><input data-field='name' type="text"></td>
+            <td align="center"><input class='draw' type="checkbox"></td>
+            <td align="center"><input class='supervise' type="checkbox"></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab" id='enterprise' style="display: none;">
+      <table border="1">
+        <tr>
+          <th width="50">选择</th>
+          <th width="80">级别</th>
+          <th width="auto">公司名称</th>
+          <th width="300">地址</th>
+          <th width="70">联系人</th>
+          <th width="140">联系电话</th>
+        </tr>
+      </table>
+      <div class="tbody" >
+        <table border="1">
+          <colgroup>
+            <col width="50">
+            <col width="80">
+            <col width="auto">
+            <col width="300">
+            <col width="70">
+            <col width="140">
+          </colgroup>
+          <tr class='add'>
+            <td align="center"><input type="checkbox" value=""></td>
+            <td><input data-field='level' class='select-level' type="text"></td>
+            <td><input data-field='name' type="text"></td>
+            <td><input data-field='addr' type="text"></td>
+            <td><input data-field='contact' type="text"></td>
+            <td><input data-field='tel' type="text"></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab" id='draw' style="display: none;">
+      <table border="1">
+        <tr>
+          <th width="100" style="background-color: #EEE;">抽签工程</th>
+          <th width="auto" id='drawProject'></th>
+          <th width="80" style="background-color: #EEE;">抽签人</th>
+          <th width="auto" id='drawPerson'></th>
+          <th width="80" style="background-color: #EEE;">监督人</th>
+          <th width="auto" id='supervisePerson'></th>
+        </tr>
+      </table>
+      <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <div id="drawContainer">
+          <!-- 抽签列表 -->
+        </div>
+        <button id='startBtn' onclick="start()" style="margin-top: 30px;" class="btn">开始抽签</button>
+      </div>
+    </div>
+
+    <div class="tab" id='record' style="display: none;">
+      <table border="1">
+        <tr>
+          <th width="300">工程</th>
+          <th width="auto">中签企业</th>
+          <th width="150">抽签人</th>
+          <th width="200">监督人</th>
+        </tr>
+      </table>
+      <div class="tbody" >
+        <table border="1">
+          <colgroup>
+            <col width="300">
+            <col width="auto">
+            <col width="150">
+            <col width="200">
+          </colgroup>
+          <tr class='add'>
+            <td><input readonly="true" data-field='project' type="text"></td>
+            <td><input readonly="true" data-field='enterprise' type="text"></td>
+            <td><input readonly="true" data-field='drawPerson' type="text"></td>
+            <td><input readonly="true" data-field='supervisePerson' type="text"></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div id="foot">表格内容可直接编辑，最后一行用于添加内容，按 [DEL] 键可删除表格的选中行</div>
+
+    <!-- 选择级别菜单 -->
+    <ul id="levelList">
+      <li>甲级</li>
+      <li>乙级</li>
+    </ul>
+
+    <!-- 抽签项目模版 -->
+    <div id='drawItemTemp' class="item" style="display: none">
+      <div class="front"></div>
+      <div class="back"></div>
+    </div>
+
+    <script type="text/javascript">
+      // 抽签企业
+      let enterpriseArr = [], resultIndex = -1, result = '1234567890abcdefghijklmnopqrstuvwxyz';
+
+      // 初始化数据库
+      var db;
+      var request = indexedDB.open("WD", 1);
+      request.onerror = function(event) {
+        console.log(event)
+        // alert("数据库出现问题");
+      };
+      request.onsuccess = function(event) {
+        db = request.result;
+        // 获取全部数据
+        for (let item of ['project', 'person', 'enterprise', 'record']) {
+          let $addLine = $(`#${item} .add`);
+          let objectStore = db.transaction(item).objectStore(item);
+          objectStore.openCursor().onsuccess = function(event) {
+            let cursor = event.target.result;
+            if (cursor) {
+              let $newLine = $addLine.clone();
+              let fields = $newLine.attr({ 'data-id': cursor.key, class: 'edit' }).find('input[data-field]');
+              for (let item of fields) {
+                item.value = cursor.value[item.dataset.field];
+              }
+              $addLine.before($newLine);
+              cursor.continue();
+            }
+          };
+        }
+      };
+      request.onupgradeneeded = function(event) { 
+        let db = event.target.result;
+        db.createObjectStore("record", { keyPath: "id", autoIncrement: true });
+        db.createObjectStore("project", { keyPath: "id", autoIncrement: true });
+        db.createObjectStore("person", { keyPath: "id", autoIncrement: true });
+        db.createObjectStore("enterprise", { keyPath: "id", autoIncrement: true });
+      };
+
+      // 更新数据
+      function updateLine(obj, input) {
+        // 获取数据
+        let $editLine = $(input).parents('.edit');
+        let data = { id: $editLine.data('id') };
+        for (let item of $editLine.find('input[data-field]')) {
+          data[item.dataset.field] = item.value;
+        }
+
+        let transaction = db.transaction([ obj ], "readwrite");
+        transaction.oncomplete = function(event) {
+        };
+        transaction.onerror = function(event) {
+        };
+        let objectStore = transaction.objectStore(obj);
+        let request = objectStore.put(data);
+        request.onsuccess = function(event) {
+        };
+      }
+
+      // 表格添加新行
+      function addLine(obj, input) {
+        // 在表格末尾增加一个新行
+        let $addLine = $(input).parents('.add');
+        let $newLine = $addLine.clone();
+        $newLine.find('input').val('').prop('checked', false);
+        $addLine.attr('class', 'edit').after($newLine);
+
+        // 获取插入到数据库的数据
+        let data = {};
+        for (let item of $addLine.find('input[data-field]')) {
+          data[item.dataset.field] = item.value;
+        }
+
+        // 插入数据库
+        let transaction = db.transaction([ obj ], "readwrite");
+        transaction.oncomplete = function(event) {
+        };
+        transaction.onerror = function(event) {
+        };
+        let objectStore = transaction.objectStore(obj);
+        let request = objectStore.add(data);
+        request.onsuccess = function(event) {
+          $addLine.attr('data-id', event.target.result);
+        };
+      }
+
+      // 表格新增行
+      $('#project, #person, #enterprise').on('change', ".add input[data-field]", function(e) {
+        addLine(e.delegateTarget.id, e.target);
+      })
+
+      // 更新表格行
+      $('#project, #person, #enterprise').on('change', ".edit input[data-field]", function(e) {
+        updateLine(e.delegateTarget.id, e.target);
+      })
+
+      // 选择表格
+      $('#project, #person, #enterprise, #record').on('focus', ".edit input", function(e) {
+        // console.log(e.delegateTarget.id)
+        $(e.target).parents('tr').addClass('picked-line').siblings('.picked-line').removeClass('picked-line');
+      })
+
+      // 选择中介
+      $("#enterprise").on('change', '.edit :checkbox', function(e) {
+        enterpriseArr = [];
+        $("#enterprise .edit :checked").each(function() {
+          enterpriseArr.push($(this).parents('tr').find('input[data-field=name]').val())
+        })
+        updateDraw();
+      })
+
+      // 选择人
+      $('#person').on('change', ":checkbox", function(e) {
+        if (e.target.checked) {
+          if ($(e.target).parents('tr').find(':checked').length > 1) {
+            e.target.checked = false;
+          }
+        }
+
+        let arr = [];
+        for (let item of $('#person input.draw:checked')) {
+          arr.push($(item).parents('tr').find('[data-field=name]').val())
+        }
+        $("#drawPerson").html(arr.join(','));
+
+        arr = [];
+        for (let item of $('#person input.supervise:checked')) {
+          arr.push($(item).parents('tr').find('[data-field=name]').val())
+        }
+        $("#supervisePerson").html(arr.join(','));
+      })
+
+      // 选择工程
+      $('#project').on('change', ".edit input:radio", function(e) {
+        $('#drawProject').html($(e.target).parents('tr').find('[data-field=name]').val());
+      })
+
+      // 顶部导航
+      $('#head .item').on('click', function(e) {
+        let $item = $(e.target);
+        if (!$item.hasClass('sel')) {
+          $item.addClass('sel').siblings('.sel').removeClass('sel');
+          $('#' + $item.attr('for')).show().siblings('.tab').hide();
+        }
+      })
+
+      // 选择级别
+      $(document).on('click', ".select-level", function(e) {
+        let $e = window.$selectLevel = $(e.target)
+        let offset = $e.offset();
+        $('#levelList').css({ top: offset.top + $e.height(), left: offset.left }).show();
+        $(document).one('click', function(e) {
+          if (!$(e.target).hasClass('select-level'))
+            $('#levelList').hide();
+        });
+      })
+      $('#levelList li').on('click', (e) => {
+        window.$selectLevel.val($(e.target).html()).trigger('change')
+      })
+
+      // 更新参与抽签企业
+      function updateDraw() {
+        let temp = $("#drawItemTemp");
+        let $drawContainer = $('#drawContainer');
+        let itemWidth = temp.width() * 2;
+        $drawContainer.width(enterpriseArr.length * itemWidth).empty();
+        for (let i = 0; i < enterpriseArr.length; i++) {
+          let item = temp.clone().attr('id', null).css({ left: i * itemWidth, top: 0 }).show();
+          item.find('.front').html(enterpriseArr[i]);
+          $drawContainer.append(item);
+        }
+      }
+
+      // 开始抽签
+      function start() {
+        // 检查
+        let project = $("#drawProject").html();
+        let drawPerson = $("#drawPerson").html();
+        let supervisePerson = $("#supervisePerson").html();
+        if (project == '' || drawPerson == '' || supervisePerson == '' || $("#drawContainer .item").length < 2) {
+          alert('信息设置不完整，不能抽签');
+          return;
+        }
+        // 开始
+        $('#drawContainer .front, #drawContainer .back').addClass('rotate') // 翻转时间 1s 
+
+        // 洗牌 10 次
+        setTimeout(() => { 
+          // 防止人为干扰抽签结果后，卡片内容被修改，需要重置一下卡片内容
+          $("#drawContainer .front").each(function(i, e) {
+            e.innerHTML = enterpriseArr[i];
+          })
+          // 洗牌 10 次
+          for (let j = 0; j < 10; j++) {
+            let arr = [];
+            for (let i = 0; i < enterpriseArr.length; i++) 
+              arr.push(i);
+            for (let i = 0; i < arr.length - 1; i++) {
+              let r = Math.ceil((arr.length - 1 - i) * Math.random()) + i;
+              let tmp = arr[i];
+              arr[i] = arr[r];
+              arr[r] = tmp;
+            }
+            let $items = $('#drawContainer .item');
+            let itemWidth = $items.width() * 2;
+            for (let i = 0; i < $items.length; i++) {
+              $($items[i]).animate({ left: itemWidth * arr[i] }, 300);
+            }
+          }
+        }, 1000);
+
+        // 安装抽签点击事件监听器
+        setTimeout(() => {
+          resultIndex = -1;
+          $('#drawContainer').one('click', ".item", function(e) {
+            if (resultIndex >= 0 && resultIndex < enterpriseArr.length) {
+              $(e.target).siblings('.front').html(enterpriseArr[resultIndex]);
+            }
+            $(e.target).parent().children().removeClass('rotate')
+
+            let data = { time: Date.now(), project, drawPerson, supervisePerson, enterprise: $(e.target).siblings('.front').html() }
+            let request = db.transaction(['record'], "readwrite").objectStore('record').add(data);
+            request.onsuccess = (e) => {
+              // 添加到表格中
+              let $addLine = $(`#record .add`);
+              let $newLine = $addLine.clone();
+              let fields = $newLine.attr({ 'data-id': e.target.result, class: 'edit' }).find('input[data-field]');
+              for (let item of fields) {
+                item.value = data[item.dataset.field];
+              }
+              $addLine.before($newLine);
+            }
+          })
+        }, 3000);
+      }  //  end start
+
+      // 监听键盘按键
+      $(document).keydown(function(e) {
+        resultIndex = result.indexOf(e.key); // 设置抽签结果
+        if (e.key == "Delete") {
+          let $line = $(':focus').parents('.picked-line');
+          if ($line.length > 0) {
+            let id = $line[0].dataset.id;
+            let obj = $("#head .sel").attr('for');
+            db.transaction([obj], "readwrite").objectStore(obj).delete(parseInt(id));
+            $line.remove();
+          }
+        }
+      })
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

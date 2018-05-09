@@ -1,0 +1,136 @@
+* { box-sizing: border-box; }
+html { height: 100%; }
+body { margin: 0; font-size: 14px; color: #000; height: 100%; display: flex; flex-direction: column; }
+#foot { height: 35px; line-height: 35px; flex-shrink: 0; color: #888; padding: 0 10px; border: 1px solid #CCC; border-width: 1px 0 0 0; background-color: #EEE; width: 100%; }
+
+input { font-size: 14px; background-color: rgba(255, 255, 255, 0) }
+input[type=date i] { font-family: system-ui }
+input::-webkit-inner-spin-button { display: none }
+input::-webkit-clear-button { display: none }
+/* input::-webkit-calendar-picker-indicator { display: none }  */
+
+#head { height: 50px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; }
+#head .item { margin: 0 10px; border: 1px solid #CCC; border-radius: 15px; height: 30px; padding: 0 20px; cursor: pointer; }
+#head .flex { display: flex; justify-content: center; align-items: center; }
+#head .sel { border-color: #900; color: #900; }
+
+.tab { flex-grow: 1; display: flex; flex-direction: column; }
+.tab table { border-collapse: collapse; border: 0; width: 100%; }
+.tab table th { border-color: #CCC; padding: 5px 8px; vertical-align: middle; }
+.tab table td { border-color: #CCC; padding: 0; }
+.tab table td input[type=text], .tab table td input[type=date] { width: 100%; height: 40px; outline: none; padding: 0 8px; border: 0; }
+.tab .tbody { overflow: scroll; }
+.tab .tbody::-webkit-scrollbar { display:none }
+
+.picked-line { background-color: #EEE }
+
+#levelList { display: none; position: absolute; top: 0; left: 0; border: 1px solid #CCC; margin: 0; padding: 0; width: 80px; background-color: #EEE; }
+#levelList li { height: 35px; line-height: 35px; border-bottom: 1px solid #CCC; text-align: center; cursor: pointer; list-style: none; }
+#levelList li:hover { background-color: #DDD; }
+
+#drawContainer { position: relative; height: 250px; width: 500px; }
+#drawContainer .item, #drawItemTemp { 
+	height: 100%;
+	width: 35px;
+	position: absolute; 
+	cursor: pointer;
+	top: 0; 
+	left: 0; 
+	perspective: 300px; 
+	transform-style: preserve-3d;
+}
+#drawContainer .item .front, #drawContainer .item .back {
+	padding: 10px 0;
+	display: flex;
+	align-items: center;
+	writing-mode: vertical-lr; 
+	border: 1px solid #CCC;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	transition: transform 1s;
+	overflow: hidden;
+	white-space: nowrap;
+	/*box-shadow: 2px 2px 4px 1px rgba(181, 177, 177, 0.90);*/
+	border-radius: 5px;
+}
+#drawContainer .item .front {
+	backface-visibility: hidden;
+	background-color: #FFF;
+	z-index: 2;
+}
+#drawContainer .item .back { 
+	backface-visibility: visible; 
+	background-color: #EEE;
+	z-index: 1;
+}
+.rotate { transform: rotateY(180deg); }
+
+.btn[disabled] { color: #999; }
+.btn {
+	outline: none;
+
+	-webkit-appearance: button;
+	cursor: pointer;
+
+	display: inline-block;
+	padding: 6px 12px;
+	margin-bottom: 0;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.42857143;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: middle;
+	-ms-touch-action: manipulation;
+	touch-action: manipulation;
+	cursor: pointer;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	background-image: none;
+	border: 1px solid transparent;
+	border-radius: 4px;
+
+	color: #333;
+	background-color: #fff;
+	border-color: #ccc;
+
+	text-shadow: 0 -1px 0 rgba(0,0,0,.2);
+	-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.15),0 1px 1px rgba(0,0,0,.075);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,.15),0 1px 1px rgba(0,0,0,.075);
+
+	text-shadow: 0 1px 0 #fff;
+	background-image: -webkit-linear-gradient(top,#fff 0,#e0e0e0 100%);
+	background-image: -o-linear-gradient(top,#fff 0,#e0e0e0 100%);
+	background-image: -webkit-gradient(linear,left top,left bottom,from(#fff),to(#e0e0e0));
+	background-image: linear-gradient(to bottom,#fff 0,#e0e0e0 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffe0e0e0', GradientType=0);
+	filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+	background-repeat: repeat-x;
+	border-color: #dbdbdb;
+	border-color: #ccc;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
